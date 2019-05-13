@@ -248,7 +248,6 @@ void PrintLine(stringstream& line){
         while(line){
                if (strchr("+-/*%^", line.peek()) != NULL)
                {
-                   cout << "Operator string :" << endl;
                    value = Calculate(value, line);
                }
         }
@@ -276,8 +275,10 @@ double Calculate(double& value, stringstream& line)
     int intValue2;
     
     //get the operator symbol
-    line >> symbol;
-    cout << "The value of operator is:" << symbol << endl;
+    getline(line, token, ' ');
+    //convert string to char
+    symbol = token[0];
+   // cout << "The value of operator is:" << symbol << endl;
     
    // getline(line, token);
    // cout << "The value of last line is:" << token<< endl;
@@ -326,23 +327,19 @@ double GetValue(stringstream& line){
     
     if(line && isdigit(line.peek())){
         line >> value;
-        cout << "\n Calling GetValue, value is a digit: ";
-        cout << "The Value at GetValue is:" << value << endl;
-     //   done = true;
         return value;
     }
     if(line && isalpha(line.peek())) {
       //  cout << "\n Calling GetValue, value is NOT a digit: /n";
         getline(line, token);
-        cout << "The Value of ALPHA token at GetValue is: " << token << endl;
-
         variable = checkVar(token);
+        
         if (variable != NULL) {
             value = variable->getValueData();
           //  cout << "The Value at GetValue is:" << value << endl;
         }
         else {
-            cout<<"The variable "<< token <<" doesnt exist \n";
+            cout<<"The variable "<< token <<" is undefined \n";
             exit(0);
         }
         

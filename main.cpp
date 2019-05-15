@@ -23,7 +23,7 @@ void AddNewScopeValue(string& varName);
 void RemoveScopeValue();
 HashNode* checkVar(string expr);
 void processVar(HashNode* varName, stringstream& line);
-void PrintLine(stringstream& line);
+void PrintLine(stringstream& expr);
 double Calculate(double& value, stringstream& line);
 double GetValue(stringstream& line);
 
@@ -110,7 +110,7 @@ void EvaluateExpr(string& expr){
         }
         
         else if (checkVar(nextToken) != NULL) {
-            cout << "Evaluating varName at EvaluateExpr: "<< nextToken << endl;
+           // cout << "Evaluating varName at EvaluateExpr: "<< nextToken << endl;
             processVar(checkVar(nextToken), line);
             break;
         
@@ -127,7 +127,7 @@ void StoreHash(stringstream& line){
     string varName;
     double value = 0;
     
-    cout << "\n Calling StoreHash: \n";
+   // cout << "\n Calling StoreHash: \n";
     
     
     // 2 possibilities
@@ -176,8 +176,15 @@ void RemoveScopeValue(){
 
 //check if variable exists
 HashNode* checkVar(string varName){
-  //  cout << "\n CheckVar was called:" << endl;
-  //  cout << "The varName is: " << varName << endl;
+    
+    //HashNode* node = hashTbl->find(varName);
+    
+    
+   // cout << "\n CheckVar was called and variable " << varName << endl;
+   // cout << node->getValueData() << endl;
+   // cout << "\n CheckVar is finished " << endl;
+    //  cout << "The varName is: " << varName << endl;
+    
     return hashTbl->find(varName);
 }
 
@@ -186,7 +193,7 @@ void processVar(HashNode* varName, stringstream& line){
     string nextToken;
     double var;
     
-    cout << "\n Calling ProcessVar: \n";
+   // cout << "\n Calling ProcessVar: \n";
     
     
     
@@ -207,6 +214,7 @@ void processVar(HashNode* varName, stringstream& line){
             {
                 var++;
                 varName->setValueData(var);
+                  cout << "\n Calling ++ VARIABLE: \n";
             }
             ;
             if (strcmp(nextToken.c_str(), "--") == 0)
@@ -227,23 +235,31 @@ void processVar(HashNode* varName, stringstream& line){
     
 }
 
-void PrintLine(stringstream& line){
+void PrintLine(stringstream& expr){
     
     string nextToken;
     HashNode* variable;
+    string outputLine;
     double value;
+    
+    //string line used for output
+    getline(expr, outputLine);
+    
+    //convert outstring back to stream for parsing
+    stringstream line(outputLine);
     
     //check if next variable is in the table
     //extract value from the variable
     //if there is no more on the line, print the variable
     //if there are more stuff perform necessary calculations
     getline(line, nextToken, ' ');
+    
     if (checkVar(nextToken) == NULL)
-        cout<<" The variable " <<nextToken <<" is undefined \n";
-    else{
+        cout<<"The variable " << nextToken <<" is undefined \n";
+    else {
         variable = checkVar(nextToken);
         value = variable->getValueData();
-        cout << nextToken << " IS ";
+        cout << outputLine << " IS ";
 
         while(line){
                if (strchr("+-/*%^", line.peek()) != NULL)
@@ -251,10 +267,11 @@ void PrintLine(stringstream& line){
                    value = Calculate(value, line);
                }
         }
-    
+        
+         cout << value <<endl;
     }
     
-    cout << value <<endl;
+   // cout << value <<endl;
      
     
  //   cout << "\n Calling PrintLine: \n";
@@ -276,43 +293,63 @@ double Calculate(double& value, stringstream& line)
     
     //get the operator symbol
     getline(line, token, ' ');
-    //convert string to char
-    symbol = token[0];
-   // cout << "The value of operator is:" << symbol << endl;
     
-   // getline(line, token);
-   // cout << "The value of last line is:" << token<< endl;
-    
-    //get the next value in the stream
-    valueNext = GetValue(line);
-   // valueNext = 0;
-    
-    switch (symbol)
+    //check if it's a unary operator
+    if (strcmp(token.c_str(), "++") == 0)
     {
-        case '+':
-            value = value + valueNext;
-            break;
-        case '-':
-            value = value - valueNext;
-            break;
-        case '*':
-            value = value * valueNext;
-            break;
-        case '/':
-            value = value / valueNext;
-            break;
-        case '%':
-            intValue1 = value;
-            intValue1 = valueNext;
-            value = intValue1 % intValue2;
-            break;
-        case '^':
-            intValue1 = value;
-            intValue1 = valueNext;
-            value = intValue1 ^ intValue2;
-            break;
+        value++;
+        //varName->setValueData(var);
+        //cout << "\n Calling ++ VARIABLE: \n";
     }
+    else if (strcmp(token.c_str(), "--") == 0)
+    {
+        value--;
+        //varName->setValueData(var);
+    }
+    //not a unary operator
+    //perform a calculation with a second variable
+    else{
+        //convert string to char
+        symbol = token[0];
+        // cout << "The value of operator is:" << symbol << endl;
+        
+        // getline(line, token);
+        // cout << "The value of last line is:" << token<< endl;
+        
+        //get the next value in the stream
+        valueNext = GetValue(line);
+        // valueNext = 0;
+        
+        switch (symbol)
+        {
+            case '+':
+                value = value + valueNext;
+                break;
+            case '-':
+                value = value - valueNext;
+                break;
+            case '*':
+                value = value * valueNext;
+                break;
+            case '/':
+                value = value / valueNext;
+                break;
+            case '%':
+                intValue1 = value;
+                intValue1 = valueNext;
+                value = intValue1 % intValue2;
+                break;
+            case '^':
+                intValue1 = value;
+                intValue1 = valueNext;
+                value = intValue1 ^ intValue2;
+                break;
+        }
+
+    }
+        
     
+        
     return value;
 
  }
